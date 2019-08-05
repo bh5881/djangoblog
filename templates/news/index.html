@@ -10,12 +10,11 @@
       <link rel="stylesheet" href="{% static 'css/news/index.css'%}" >
     {% endblock css %}
 </head>
+
+
 <body>
-<!-- header start -->
 
-<!-- header end -->
 
-<!-- main start -->
 {% block main_contain %}
 <main id="main">
   <div class="w1200 clearfix">
@@ -27,22 +26,22 @@
                 <!--淡入淡出banner-->
 
 
-                <li><a href="javascript:void(0);"><img src="../images/linux.jpg" alt="test"></a></li>
+                <li><a href="javascript:void(0);"><img src={%static 'images/linux.jpg'%} alt="test"></a></li>
 
 
-                <li><a href="javascript:void(0);"><img src="../images/python_gui.jpg" alt="test"></a></li>
+                <li><a href="javascript:void(0);"><img src={%static 'images/python_gui.jpg'%} alt="test"></a></li>
 
 
-                <li><a href="javascript:void(0);"><img src="../images/python_function.jpg" alt="test"></a></li>
+                <li><a href="javascript:void(0);"><img src={%static 'images/python_function.jpg'%} alt="test"></a></li>
 
 
-                <li><a href="javascript:void(0);"><img src="../images/python_advanced.jpg" alt="test"></a></li>
+                <li><a href="javascript:void(0);"><img src={%static 'images/python_advanced.jpg'%} alt="test"></a></li>
 
 
-                <li><a href="javascript:void(0);"><img src="../images/jichujiaochen.jpeg" alt="test"></a></li>
+                <li><a href="javascript:void(0);"><img src={%static 'images/jichujiaochen.jpeg'%} alt="test"></a></li>
 
 
-                <li><a href="javascript:void(0);"><img src="../images/python_web.jpg" alt="test"></a></li>
+                <li><a href="javascript:void(0);"><img src={%static 'images/python_web.jpg'%} alt="test"></a></li>
 
 
             </ul>
@@ -83,7 +82,7 @@
               <li>
                   <a href="https://www.shiguangkey.com/course/2432" target="_blank">
                       <div class="recommend-thumbnail">
-                          <img src="../images/python_gui.jpg" alt="title">
+                          <img src={%static 'images/python_gui.jpg'%} alt="title">
                       </div>
                       <p class="info">Python GUI 教程 25行代码写一个小闹钟</p>
                   </a>
@@ -92,7 +91,7 @@
               <li>
                   <a href="https://www.shiguangkey.com/course/2432" target="_blank">
                       <div class="recommend-thumbnail">
-                          <img src="../images/python_advanced.jpg" alt="title">
+                          <img src={%static 'images/python_advanced.jpg'%} alt="title">
                       </div>
                       <p class="info">python高性能编程方法一</p>
                   </a>
@@ -101,7 +100,7 @@
               <li>
                   <a href="https://www.shiguangkey.com/course/2432" target="_blank">
                       <div class="recommend-thumbnail">
-                          <img src="../images/jichujiaochen.jpeg" alt="title">
+                          <img src={%static 'images/jichujiaochen.jpeg'%} alt="title">
                       </div>
                       <p class="info">python基础 split 和 join函数比较</p>
                   </a>
@@ -143,7 +142,7 @@
                   <li class="news-item">
                       <a href="https://www.shiguangkey.com/course/2432" class="news-thumbnail"
                          target="_blank">
-                          <img src="../images/linux.jpg" alt="linux查找文件或目录命令"
+                          <img src={%static 'images/linux.jpg'%} alt="linux查找文件或目录命令"
                                title="linux查找文件或目录命令">
                       </a>
                       <div class="news-content">
@@ -163,7 +162,7 @@
                   <li class="news-item">
                       <a href="https://www.shiguangkey.com/course/2432" class="news-thumbnail"
                          target="_blank">
-                          <img src="../images/linux.jpg" alt="linux下svn命令的使用"
+                          <img src={%static 'images/linux.jpg'%} alt="linux下svn命令的使用"
                                title="linux下svn命令的使用">
                       </a>
                       <div class="news-content">
@@ -183,7 +182,7 @@
                   <li class="news-item">
                       <a href="https://www.shiguangkey.com/course/2432" class="news-thumbnail"
                          target="_blank">
-                          <img src="../images/linux.jpg" alt="实现linux和windows文件传输"
+                          <img src={%static 'images/linux.jpg'%} alt="实现linux和windows文件传输"
                                title="实现linux和windows文件传输">
                       </a>
                       <div class="news-content">
@@ -203,7 +202,7 @@
                   <li class="news-item">
                       <a href="https://www.shiguangkey.com/course/2432" class="news-thumbnail"
                          target="_blank">
-                          <img src="../images/linux.jpg" alt=".htaccess配置详解"
+                          <img src={%static 'images/linux.jpg'%} alt=".htaccess配置详解"
                                title=".htaccess配置详解">
                       </a>
                       <div class="news-content">
@@ -223,7 +222,7 @@
                   <li class="news-item">
                       <a href="https://www.shiguangkey.com/course/2432" class="news-thumbnail"
                          target="_blank">
-                          <img src="../images/linux.jpg" alt="使用nohup命令让linux程序后台运行"
+                          <img src={%static 'images/linux.jpg'%} alt="使用nohup命令让linux程序后台运行"
                                title="使用nohup命令让linux程序后台运行">
                       </a>
                       <div class="news-content">
@@ -258,7 +257,7 @@
               <h3 class="activities-title">在线课堂<a href="javascript:void(0)">更多</a></h3>
               <div class="activities-img">
                   <a href="javascript:void(0);" target="_blank">
-                      <img src="../images/english.jpg" alt="title">
+                      <img src={%static 'images/english.jpg'%} alt="title">
                   </a>
                   <p class="activities-tips">对话国外小姐姐</p>
               </div>
@@ -306,7 +305,7 @@
                   <li>
                       <a href="javascript:void(0)" class="hot-news-contain clearfix">
                           <div class="hot-news-thumbnail">
-                              <img src="../images/python_web.jpg"
+                              <img src={%static 'images/python_web.jpg'%}
                                    alt="">
                           </div>
                           <div class="hot-news-content">
@@ -330,36 +329,11 @@
   </div>
 </main>
 {% endblock main_contain %}
-<!-- main end -->
 
-<!-- footer start -->
-<footer id="footer">
-    <div class="footer-box">
-        <div class="footer-content">
-            <p class="top-content">
-					<span class="link">
-						<a href="javascript:void(0)">关于Python</a> |
-						<a href="javascript:void(0)">我就是我</a> |
-						<a href="javascript:void(0)">人生苦短</a> |
-						<a href="javascript:void(0)">我用Python</a>
-					</span>
-                <span class="about-me">关于我: <i class="PyWhich py-wechat"></i> XinLan</span>
-            </p>
-            <p class="bottom-content">
-                <span>地址： xxxx</span>
-                <span>联系方式: <a href="tel:400-1567-315">400-1567-315</a> (24小时在线)</span>
-            </p>
-        </div>
-        <p class="copyright-desc">
-            Copyright &copy; 2008 - 2018 xxx有限公司. All Rights Reserved
-        </p>
-    </div>
-</footer>
-<!-- footer end -->
 
 
 {% block script %}
-   <script src="../js/index.js"></script>
+   <script src="{% static 'js/index.js' %}"></script>
 {% endblock script %}
 
 
