@@ -40,7 +40,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'news',
     'doc',
     'course',
+    'verification',
 ]
 
 MIDDLEWARE = [
@@ -210,3 +211,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
+
+
+AUTH_USER_MODEL = 'user.User'
