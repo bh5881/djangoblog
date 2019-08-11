@@ -32,14 +32,15 @@ $(()=>{
             .ajax({
             url:'/username/'+sUsername + '/', //注意此处三个/的位置
             type: 'GET',
-            dataTpye:'json',
+            dataType:'json',
             success:function (res) {//浏览器会将返回的json数据赋值给res
-                if (res.count !== 0){
+                if (res.data.count !== 0){
                     //此处注意返回的直接是一个字典，因此直接取值，不能用res.data.count
-                    message.showError(res.username+'已经注册，请重新输入')
+                    message.showError(res.data.username+'用户名已经注册，请重新输入')
                 }else{
-                    message.showInfo(res.username+'可以正常使用');
+                    message.showInfo(res.data.username+'可以正常使用');
                     isUsernameReady = true;
+                    return
                 }
             },
                 error:function () {
@@ -94,10 +95,10 @@ $(()=>{
                 dataType: 'json'
             })
             .done((res)=>{
-                if(res.count !== 0){
-                    message.showError(res.mobile + '已经注册，请重新输入！')
+                if(res.data.count !== 0){
+                    message.showError(res.data.mobile + '手机号已经注册，请重新输入！')
                 }else{
-                    message.showInfo(res.mobile + '可以正常使用！');
+                    message.showInfo(res.data.mobile + '可以正常使用！');
                     isMolibleReady = true
                 }
             })
@@ -107,9 +108,69 @@ $(()=>{
 
     }
 
+    //5发送短信验证码
+    let $smsButton = $('.sms-captcha');
+    $smsButton.click(()=>{
+        //拿到数据
+        let sCaptcha = $('input[name="captcha_graph"]').val();
+        if (sCaptcha===''){
+            message.showError('请输入图形验证码')
+            return
+        }
+        //判断手机号码是否准备好
+        if(!isMobileReady){
+            fnCheckMobile();
+            // alert('so')
+            return
+        }
+        $
+            .ajax({
+                url:'/sms_code/',
+                type:'POST',
+                data:{
+                    mobile:$mobile.val(),
+                    captcha:sCaptcha,
+                },
+                dataType:'json'
+            })
+            .done((res)=>{
+                console(res)
+                if (res.errno !=='0'){
+                //if (res.errmsg)
+                //     message.showError(res.errmsg)
+                    message.showError("完成错误")
+                }else{
+                    // message.showSuccess(res.errmsg);
+                    message.showSuccess("完成成功");
+                    $smsButton.attr('disabled', true);
+                    //倒计时
+                    let num = 60;
+                    //设置计时器
+                    let t = setInterval(function () {
+                        $smsButton.html('倒计时'+num+'秒');
+                        if(num===1){
+                            clearInterval(t);
+                            $smsButton.removeAttr('disabled');
+                            $smsButton.html('获取短信验证码')
+                        }
+                        num --;
+                    }, 1000)
+                }
+            })
+            .fail(()=>{
+                message.showError('服务器超时，请重试')
+            });
+    })
+
+
 
 
 });
+
+
+
+
+
 
 
 
