@@ -40,7 +40,7 @@ $(()=>{
                 }else{
                     message.showInfo(res.data.username+'可以正常使用');
                     isUsernameReady = true;
-                    return
+                    // return
                 }
             },
                 error:function () {
@@ -118,9 +118,9 @@ $(()=>{
             return
         }
         //判断手机号码是否准备好
-        if(!isMobileReady){
+        if(!isMolibleReady){
             fnCheckMobile();
-            // alert('so')
+            console.log("第一步")
             return
         }
         $
@@ -134,17 +134,17 @@ $(()=>{
                 dataType:'json'
             })
             .done((res)=>{
-                console(res)
+                // console.log(res)
                 if (res.errno !=='0'){
                 //if (res.errmsg)
-                //     message.showError(res.errmsg)
-                    message.showError("完成错误")
+                    message.showError(res.errmsg)
+                //     message.showError("完成错误")
                 }else{
-                    // message.showSuccess(res.errmsg);
-                    message.showSuccess("完成成功");
+                    message.showSuccess(res.errmsg);
+                    // message.showSuccess("完成成功");
                     $smsButton.attr('disabled', true);
                     //倒计时
-                    let num = 60;
+                    var num = 60;
                     //设置计时器
                     let t = setInterval(function () {
                         $smsButton.html('倒计时'+num+'秒');
