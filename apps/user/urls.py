@@ -8,5 +8,5 @@ url地址：'user/'
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('login/',views.index,name = 'login'),
-    path('register/',views.index2,name ='register')
+    path('register/',views.RegisterView.as_view(),name ='register')
 ]

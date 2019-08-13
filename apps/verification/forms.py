@@ -1,9 +1,7 @@
-# !/usr/bin/env python
-# -*- coding:utf-8 -*-
-# author:心蓝 2019/8/9 20:50
 
-from django import forms
-from django.core.validators import RegexValidator
+
+from django import forms #首先继承Django的forms
+from django.core.validators import RegexValidator  #导入正则校验器
 from django_redis import get_redis_connection
 
 from user.models import User

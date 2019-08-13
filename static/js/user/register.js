@@ -160,6 +160,70 @@ $(()=>{
             .fail(()=>{
                 message.showError('服务器超时，请重试')
             });
+    });
+
+
+    let $submitBtn = $('.register-btn');
+    $submitBtn.click((e)=>{
+        // 阻止默认提交
+        e.preventDefault();
+        // 校验数据
+        // 1.检查用户名
+        if(!isUsernameReady){
+            fnCheckUsername();
+            return
+        }
+        // 2.检查密码
+        if(!isPasswordReady){
+            fnCheckPassword();
+            return
+        }
+        // 3.检查电话号码
+        if(!isMolibleReady){
+            fnCheckMobile();
+            return
+        }
+        // 4.校验短信验证码
+        let sSmsCode = $('input[name="sms_captcha"]').val();
+        if(sSmsCode === ''){
+            message.showError('短信验证码不能为空！');
+            return
+        }
+        if(!(/^\d{4}$/).test(sSmsCode)){
+            message.showError('短信验证码长度不正确，必须是4位数字！')
+        }
+
+        // 5. 发送ajax
+        $
+            .ajax({
+                url: '/user/register/',
+                type: 'POST',
+                data: {
+                    username: $username.val(),
+                    password: $('input[name="password"]').val(),
+                    password_repeat: $passwordRepeat.val(),
+                    mobile: $mobile.val(),
+                    sms_code: sSmsCode
+                },
+                dataType: 'json'
+            })
+            .done((res)=>{
+                if(res.errno === '0'){
+                    // 注册成功
+                    message.showSuccess(res.errmsg);
+                    // 1.5秒之后跳转到登录页面
+                    setTimeout(()=>{
+                        window.location.href = '/user/login/'
+                    }, 1500)
+
+                }else {
+                    // 注册失败
+                    message.showError(res.errmsg)
+                }
+            })
+            .fail(()=>{
+                message.showError('服务器超时，请重试！')
+            })
     })
 
 
