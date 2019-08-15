@@ -8,3 +8,4 @@ url地址：
 def index(request):
     return render(request, 'news/index.html')
     # return HttpResponse('zheshi')
+

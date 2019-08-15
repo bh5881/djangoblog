@@ -1,11 +1,13 @@
 from django import forms
 from django_redis import get_redis_connection
-
+import re
+from django.db.models import Q
 from verification import constants
 from .models import User
+from django.contrib.auth import login
 from verification.forms import mobile_validator
 
-
+#用户注册
 class RegisterForm(forms.Form):
     """
     用户注册表单
@@ -81,3 +83,76 @@ class RegisterForm(forms.Form):
         real_code = redis_conn.get('sms_text_{}'.format(moblie))
         if (not real_code) or (real_code.decode('utf-8') != sms_code):
             raise forms.ValidationError('短信验证码错误!')
+
+
+class LoginForm(forms.Form):
+    account = forms.CharField(error_messages={'required': '账户不能为空'})
+
+    password = forms.CharField(max_length=20, min_length=6,
+                               error_messages={
+                                   'max_length': '密码长度要小于20',
+                                   'min_length': '密码长度要大于6',
+                                   'require': '密码不能为空'
+                               })
+    remember = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)#添加request
+        super().__init__(*args, **kwargs)
+
+    def clean_account(self):
+        """
+        校验用户名
+        :return:
+        """
+        account = self.cleaned_data.get('account')
+
+        if not re.match(r'^1[3-9]\d{9}$', account) and (len(account) < 5 or len(account) > 20):
+            raise forms.ValidationError('用户账户格式不正确，请重新输入')
+
+        # if re.match(r'^1[3-9]\d{9}$', account):
+        #     pass
+        # else:
+        #     if len(account) < 5 or len(account) > 20:
+        #         raise forms.ValidationError('用户账户格式不正确，请重新输入')
+
+        return account
+
+    def clean(self):
+        """
+        校验用户名密码， 并实现登录逻辑
+        :return:
+        """
+        cleaned_data = super().clean()
+
+        account = cleaned_data.get('account')
+        password = cleaned_data.get('password')
+        remember = cleaned_data.get('remember')
+
+        # 登录逻辑
+        # 判断用户名密码是否匹配
+        # 1.先找到这个用户
+        # select * from tb_user where mobile=account or username=account;
+        #前面需要导入from django.db.models import Q
+        user_queryset = User.objects.filter(Q(mobile=account)|Q(username=account))
+        # 判断用户是否存在
+        if user_queryset:
+            # 2.校验这个密码是否匹配
+            user = user_queryset.first()
+            if user.check_password(password):
+                # 是否免登录
+                if remember:
+                    # 免登录14天
+                    self.request.session.set_expiry(14*24*60*60)
+                else:
+                    # 关闭浏览器清除登录状态
+                    self.request.session.set_expiry(0)
+                # 登录
+                #需要导入from django.contrib.auth import login
+                login(self.request, user)
+            else:
+                raise forms.ValidationError('用户名密码错误！')
+        else:
+            raise forms.ValidationError('用户账户不存在，请重新输入！')
+
+        return cleaned_data
