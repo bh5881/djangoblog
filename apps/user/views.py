@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render ,reverse,redirect
 from django.http import HttpResponse
 from utils.res_code import json_response ,Code
 from django import forms
 from .models import User
 from django.views import View
 from .forms import RegisterForm ,LoginForm
+from django.contrib.auth import logout
+
 # Create your views here.
 """
 url地址：
@@ -66,3 +68,9 @@ class RegisterView(View):
 
             err_msg_str = '/'.join(err_msg_list)
             return json_response(errno=Code.PARAMERR, errmsg=err_msg_str)
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+
+        return redirect(reverse('user:login'))

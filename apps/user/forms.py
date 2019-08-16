@@ -123,11 +123,11 @@ class LoginForm(forms.Form):
         校验用户名密码， 并实现登录逻辑
         :return:
         """
-        cleaned_data = super().clean()
+        # cleaned_data = super().clean()
 
-        account = cleaned_data.get('account')
-        password = cleaned_data.get('password')
-        remember = cleaned_data.get('remember')
+        account = self.cleaned_data.get('account')
+        password = self.cleaned_data.get('password')
+        remember = self.cleaned_data.get('remember')
 
         # 登录逻辑
         # 判断用户名密码是否匹配
@@ -155,4 +155,4 @@ class LoginForm(forms.Form):
         else:
             raise forms.ValidationError('用户账户不存在，请重新输入！')
 
-        return cleaned_data
+        return self.cleaned_data
