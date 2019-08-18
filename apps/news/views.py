@@ -14,9 +14,11 @@ url地址：''
 """
 def index(request):
     # 新闻标签
+    hot_news = HotNews.objects.select_related('news').only('news__title','news__image_url','news_id').filter(is_delete=False).order_by('priority','-news__clicks')[:3]
     tags = Tag.objects.only('name').filter(is_delete=False)
     return render(request, 'news/index.html', context={
         'tags': tags,
+        'hot_news':hot_news
     })
     # return HttpResponse('zheshi')
 
