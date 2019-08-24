@@ -50,6 +50,7 @@ class Comments(BaseModel):
     content = models.TextField('内容', help_text='内容')
     author = models.ForeignKey('user.User', on_delete=models.SET_NULL, null=True)
     news = models.ForeignKey('News', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ['-update_time', '-id']  # 排序
@@ -59,6 +60,17 @@ class Comments(BaseModel):
 
     def __str__(self):
         return '<评论{}>'.format(self.id)
+
+    def to_dict_data(self):
+        comment_dict = {
+            'news_id': self.news_id,
+            'content_id': self.id,
+            'content': self.content,
+            'author': self.author.username,
+            'update_time': self.update_time.astimezone().strftime('%Y年%m月%d日 %H:%M'),
+            'parent': self.parent.to_dict_data() if self.parent else None
+        }
+        return comment_dict
 
 
 class HotNews(BaseModel):

@@ -9,7 +9,9 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     path('',views.index,name = 'index'),
     path('news/', views.NewsListView.as_view(), name='news_list'),
-    path('news/banner/',views.NewsBannerView.as_view(),name = 'news_banner')
+    path('news/banners/',views.NewsBannerView.as_view(),name = 'news_banner'),
+    path('news/<int:news_id>/',views.NewsDetailViews.as_view(),name = 'news_detail'),
+path('news/<int:news_id>/comment/', views.NewsCommentView.as_view(), name='news_comment'),
     # path('test/',views.addtemp),
 
 ]
