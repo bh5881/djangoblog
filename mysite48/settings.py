@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',
     'user',
     'news',
     'doc',
@@ -222,6 +223,24 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
+# 配置搜索引擎
+# 在settings.py中添加如下设置
+# 全文搜索引擎haystack 配置
+# 不同的搜索引擎，配置不同，详情见官方文档
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://127.0.0.1:9200/',    # 此处为elasticsearch运行的服务器ip地址和端口
+        'INDEX_NAME': 'tzpython',           # 指定elasticserach建立的索引库名称
+    },
+}
+
+# 搜索结果每页显示数量
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
+# 实时更新index
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
 
 
 

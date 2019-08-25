@@ -5,11 +5,13 @@ from django.db.models import F
 from django.core.paginator import Paginator
 from .models import Tag, News, HotNews, Banner,Comments
 from . import constants
+from django.conf import settings
 from utils.res_code import json_response
 from django.http import HttpResponseNotFound,JsonResponse
 from utils.res_code import json_response, Code, error_map
 
 logger = logging.getLogger('django')
+from haystack.generic_views import SearchView
 # Create your views here.
 """
 url地址：''
@@ -153,3 +155,52 @@ class NewsCommentView(View):
         # 序列化一个评论数据
 
         return json_response(data=new_comment.to_dict_data())
+
+class NewsSearchViews(SearchView):
+    """
+        新闻搜索视图
+        url: /news/search/
+        """
+    # 配置搜索模板文件
+    template_name = 'news/search.html'
+
+    def get(self, request, *args, **kwargs):
+        # 1. 获取查询参数
+        query = request.GET.get('q')
+        if not query:
+            # 2. 如果没有查询数
+            # 返回热门新闻
+            hot_news = HotNews.objects.select_related('news__tag').only('news__title', 'news__image_url', 'news_id',
+                                                                        'news__tag__name').filter(
+                is_delete=False).order_by('priority', '-news__clicks')
+            # 分页
+            # 需要从上面导入from django.core.paginator import Paginator
+            paginator = Paginator(hot_news, settings.HAYSTACK_SEARCH_RESULTS_PER_PAGE)
+
+            try:
+                page = paginator.get_page(int(request.GET.get('page')))
+            except Exception as e:
+                page = paginator.get_page(1)
+
+            return render(request, self.template_name, context={
+                'page': page,
+                'query': query
+            })
+        else:
+            # 3. 如果有怎么办
+            # 如果上面不配置模板文件，这里会找不到
+            return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        在context中添加变量page
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        # 返回值要求page_obj,因此这里可以用此方法来在不改变context的情况下传入前端pge_obj
+        context = super().get_context_data(*args, **kwargs)
+        if context['page_obj']:
+            context['page'] = context['page_obj']
+
+        return context
