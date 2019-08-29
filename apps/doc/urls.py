@@ -1,11 +1,11 @@
-from django.contrib import admin
-from django.urls import path,include
+from django.urls import path
+
 from . import views
+
 app_name = 'doc'
-"""
-url地址：''
-"""
+
 urlpatterns = [
-    #path('admin/', admin.site.urls),
-    path('',views.index,name = 'index'),
+    path('download/', views.index, name='index'),
+    path('docs/', views.DocListView.as_view(), name='doc_list'),
+    path('dload/', views.DownLoadView.as_view())
 ]
