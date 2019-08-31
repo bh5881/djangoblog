@@ -1,56 +1,36 @@
-{% extends 'base/base.html' %}
+{% extends 'base/base_yuan.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-    {% block title %}
-  <title>coursePage</title>
-    {% endblock title %}
+{% block title %}在线课堂{% endblock %}
+{% block link %}
+    <link rel="stylesheet" href="{% static 'css/course/course.css' %}">
+    <script>
+        iMenuIndex = 1
+    </script>
+{% endblock %}
 
-{% block css %}
-  <link rel="stylesheet" href=" {% static '/css/course/course.css' %}">
-{% endblock css %}
-</head>
-<body>
 
-{% block main %}
+
+{% block main_start %}
     <main id="course-container">
         <div class="w1200">
             <ul class="course-list">
-
+                {% for course in courses %}
                 <li class="course-item">
-                    <a href="https://www.shiguangkey.com/course/2432">
-                        <img class="course-img" src={%static 'images/python_advanced.jpg'%}
-                            alt="潭州英语">
+                    <a href="{% url 'course:course_detail' course.id %}">
+                        <img class="course-img" src="{{ course.cover_url }}"
+                             alt="{{ course.title }}">
                         <div class="course-content">
-                            <p class="course-info">python 全栈开发</p>
-                            <p class="course-author">不动(python金牌讲师)</p>
+                            <p class="course-info">{{ course.title }}</p>
+                            <p class="course-author">{{ course.teacher.name }}({{ course.teacher.title }})</p>
                             <p class="course-price free">免费</p>
                         </div>
                     </a>
                 </li>
-
-                <li class="course-item">
-                    <a href="https://www.shiguangkey.com/course/2432">
-                        <img class="course-img" src={%static 'images/python_web.jpg'%}
-                            alt="潭州英语">
-                        <div class="course-content">
-                            <p class="course-info">django 项目</p>
-                            <p class="course-author">XinLan(python讲师)</p>
-                            <p class="course-price free">免费</p>
-                        </div>
-                    </a>
-                </li>
+                {% endfor %}
 
             </ul>
         </div>
     </main>
-
-{% endblock main %}
-
+{% endblock %}
 
 
-
-</body>
-</html>
