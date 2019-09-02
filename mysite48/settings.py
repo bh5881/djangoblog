@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'doc',
     'course',
     'verification',
+    'myadmin',
 ]
 
 MIDDLEWARE = [
