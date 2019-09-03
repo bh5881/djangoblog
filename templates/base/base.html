@@ -47,7 +47,7 @@
                     <i class="PyWhich py-user"></i>
                     <span>{{ user.username }}</span>
                     <ul class="author-menu">
-                        <li><a href="javascript:void(0);">后台管理</a></li>
+                        <li><a href="{% url 'myadmin:index' %}">后台管理</a></li>
                         <li><a href="{% url 'user:logout' %}">退出登录</a></li>
                     </ul>
                 </div>

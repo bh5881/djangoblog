@@ -134,3 +134,49 @@ class MenuAddView(View):
             return json_response(errmsg='菜单添加成功！')
         else:
             return render(request, 'myadmin/menu/add_menu.html', context={'form': form})
+
+
+class MenuUpdateView(View):
+    """
+    url:myadmin/menu/<int:menu_id>/
+    """
+    def delete(self,request,menu_id):
+        menu = Menu.objects.filter(id = menu_id).only('name')
+        if menu:
+            menu = menu[0]
+            #查看是否是父菜单
+            if menu.children.filter().exists():
+                return json_response(errno=Code.DATAERR,errmsg='父菜单非空不能删除')
+            menu.permission.delete()
+            return json_response(errmsg='父菜单：%s删除成功'%menu.name)
+        else:
+            return json_response(errno=Code.NODATA,errmsg='菜单不存在，因此不能删除')
+
+    def get(self,request,menu_id):
+        menu = Menu.objects.filter(id = menu_id).first()
+        form = MenuModelForm(instance=menu)
+        return render(request,'myadmin/menu/update_menu.html',context={'form':form})
+
+    def put(self,request,menu_id):
+        menu = Menu.objects.filter(id = menu_id).first()
+        if not menu:
+            return json_response(errno=Code.NODATA,errmsg='菜单不存在')
+        #获取put请求的参数
+        put_data = QueryDict(request.body)
+        form = MenuModelForm(put_data,instance=menu)
+        if form.is_valid():
+            obj = form.save()
+            #检查修改了的字段是否和权限有关
+            flag = False
+            if 'name'in form.changed_data:
+                #返回一个修改了的权限的列表
+                obj.permission.name = obj.name
+                flag = True
+            if 'codename'in form.changed_data:
+                obj.permission.codename = obj.codename
+                flag = True
+            if flag:
+                obj.permission.save()
+            return json_response(errmsg='菜单修改成功')
+        else:
+            return render(request,'myadmin/menu/update_menu.html',context={'form':form})

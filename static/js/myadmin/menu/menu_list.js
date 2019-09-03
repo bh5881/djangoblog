@@ -24,7 +24,7 @@ $(() => {
     function deleteMenu() {
         $
             .ajax({
-                url: '/admin/menu/' + menuId + '/',
+                url: '/myadmin/menu/' + menuId + '/',
                 type: 'DELETE',
                 dataType: 'json'
             })
@@ -53,7 +53,7 @@ $(() => {
         // 发送ajax
         $
             .ajax({
-                url: '/admin/menu/' + menuId + '/',
+                url: '/myadmin/menu/' + menuId + '/',
                 type: 'GET'
             })
             .done((res)=>{

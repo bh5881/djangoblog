@@ -5,7 +5,7 @@ $(() => {
     $updateBtn.click(function () {
         $
             .ajax({
-                url: '/admin/menu/' + menuId + '/',
+                url: '/myadmin/menu/' + menuId + '/',
                 type: 'PUT',
                 data: $form.serialize()
             })
