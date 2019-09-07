@@ -14,5 +14,7 @@ urlpatterns = [
     path('wait/', views.WaitView.as_view(), name='wait'),
     path('menus/', views.MenuListView.as_view(), name='menu_list'),
     path('menu/', views.MenuAddView.as_view(), name='menu_add'),
-    path('menu/<int:menu_id>/', views.MenuUpdateView.as_view(), name='menu_update')
+    path('menu/<int:menu_id>/', views.MenuUpdateView.as_view(), name='menu_update'),
+    path('users/',views.UserListView.as_view(),name = 'user_list'),
+path('user/<int:user_id>/', views.UserUpdateView.as_view(), name='user_update'),
 ]

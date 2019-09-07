@@ -3,9 +3,11 @@ from django.shortcuts import render
 from django.views import View
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-
+from django.contrib.auth.models import Permission, Group
+from django.core.paginator import Paginator
 from .models import Menu
-from .forms import MenuModelForm
+from user.models import User
+from .forms import MenuModelForm,UserModelForm,GroupModelForm
 from utils.res_code import json_response, Code
 
 
@@ -86,7 +88,31 @@ class IndexView(View):
             }
 
         ]
-        return render(request, 'myadmin/index.html', context={'menus': menus})
+        #拿到所有的可用，可见菜单，一级菜单
+        objs = Menu.objects.only('name','url','icon','permission__codename','permission__content_type__app_label').select_related('permission__content_type').filter(is_delete=False,is_visible=True,parent=None)
+ #过滤用户拥有权限的菜单
+        has_permissions = request.user.get_all_permissions()
+        #3构造数据结构
+        menus = []
+        for menu in objs:
+            if '%s.%s'%(menu.permission.content_type.app_label,menu.permission.codename)in has_permissions:
+                temp = {'name':menu.name,
+                        'icon':menu.icon}
+                #检查是否有可用可见的子菜单
+                children = menu.children.filter(is_delete=False,is_visible=True)
+                if children:
+                    temp['children'] = []
+                    for child in children:
+                        if '%s.%s'%(child.permission.content_type.app_label,child.permission.codename) in has_permissions:
+                            temp['children'].append({'name':child.name,'url':child.url})
+                else:
+                    if not menu.url:
+                        continue
+                    temp['url'] = menu.url
+                menus.append(temp)
+        return render(request,'myadmin/index.html',context ={'menus':menus})
+
+
 
 class HomeView(View):
     def get(self, request):
@@ -180,3 +206,82 @@ class MenuUpdateView(View):
             return json_response(errmsg='菜单修改成功')
         else:
             return render(request,'myadmin/menu/update_menu.html',context={'form':form})
+
+class UserListView(View):
+    """
+    用户里列表视图
+    url:/myadmin/users/
+    """
+    def get(self,request):
+        #1,获取用户的查询集
+        user_queryset = User.objects.only('username','is_active','mobile','is_staff','is_superuser')
+        groups = Group.objects.only('name')
+            #2,接收参数并校验，过滤字典
+        query_dict = {}
+        groups__id=request.GET.get('group')
+        if groups__id:
+            try:
+                groups__id = int(groups__id)
+                query_dict['groups__id'] = groups__id
+            except Exception as e:
+                pass
+        is_staff = request.GET.get('is_staff')
+        if is_staff =='0':
+            query_dict['is_staff'] = False
+        if is_staff == '1':
+            query_dict['is_staff'] = True
+        is_superuser = request.GET.get('is_superuser')
+        if is_superuser =='0':
+            query_dict['is_superuser'] = False
+        if is_superuser =='1':
+            query_dict['is_superuser'] = True
+        username = request.GET.get('username')
+        if username:
+            query_dict['username'] = username
+        #过滤分页
+        try:
+            page = int(request.GET.get('page',1))
+        except Exception as e:
+            page = 1
+        paginator = Paginator(user_queryset.filter(**query_dict),4)
+        users = paginator.get_page(page)
+        #5,渲染模板
+        context = {'users':users,'groups':groups}
+        context.update(query_dict)
+        #返回
+        return render(request,'myadmin/user/user_list.html',context=context)
+
+class UserUpdateView(View):
+    """
+    用户更新视图
+    url:/myadmin/user/<int:user_id>
+    """
+    def get(self,request,user_id):
+        user = User.objects.filter(id = user_id).first()
+        if user:
+            form = UserModelForm(instance = user)
+        else:
+            return json_response(errno=Code.NODATA,errmsg='没有此用户')
+        return render(request,'myadmin/user/user_detail.html',context={'form':form})
+
+    def put(self,request,user_id):
+        #1,拿到要修改的用户对象
+        user = User.objects.filter(id =user_id).first()
+        #2.判断用户是否存在
+        if not user:
+            return json_response(errno=Code.NODATA,errmsg='没有此用户')
+        #2拿到前端传递的参数
+        put_data = QueryDict(request.body)
+        #校验参数
+        #3.1创建表单对象
+        form = UserModelForm(put_data,instance= user)
+        if form.is_valid():
+    #4,如果修改成功，保存表单数据
+            form.save()
+            return json_response(errmsg='用户修改成功了！！！')
+        else:
+            return render(request,'myadmin/user/user_detail.html',context ={'form':form})
+
+
+
+
