@@ -282,6 +282,85 @@ class UserUpdateView(View):
         else:
             return render(request,'myadmin/user/user_detail.html',context ={'form':form})
 
+class GroupListView(View):
+    """
+    分组列表视图
+    url:/myadmin/groups
+    """
+    def get(self,request):
+        #1,拿到所有的分组
+        groups = Group.objects.only('name').all()
+        #2，渲染
+        return render(request,'myadmin/group/group_list.html',context={'groups':groups})
+
+
+class GroupUpdateView(View):
+    """
+    分组更新功能
+    url:myadmin/group/<int:group_id>
+    """
+    def get(self,request,group_id):
+        #1,拿到要修改的分组
+        group = Group.objects.filter(id =group_id).first()
+        #1.1判断分组是否不存在
+        if not group:
+            return json_response(errno=Code.NODATA,errmsg='没有此分组')
+        #2,创建表单
+        form= GroupModelForm(instance = group)
+        #3,拿到所有可用的一级菜单
+        menus = Menu.objects.only('name','permission_id').select_related('permission').filter(is_delete=False,parent=None)
+        #4,拿到当前组的可用权限
+        permissions = group.permissions.only('id').all()
+        #3,返回渲染html
+        return render(request,'myadmin/group/group_detail.html',context={'form':form,'menus':menus,'permissions':permissions})
+
+    def put(self,request,group_id):
+        #1,拿到要修改的分组
+        group = Group.objects.filter(id = group_id).first()
+        #1.1判断分组是否不存在
+        if not group:
+            return json_response(errno=Code.NODATA,errmsg='分组不存在')
+        #2,拿到前端传递的参数
+        put_data = QueryDict(request.body)
+        #3,校验参数
+        #创建表单对象
+        form  = GroupModelForm(put_data,instance = group)
+        if form.is_valid():
+            #如果成功，保存表单对象
+            form.save()
+            return json_response(errmsg='修改分组成功！')
+        else:
+            #5,如果失败：
+            menus = Menu.objects.only('name','permission_id').select_related('permisson').filter(is_delete=False,parent=None)
+            #4,拿到当前组的可用权限
+            permissions = group.permissions.only('id').all()
+            return render(request,'myadmin/group/group_detail.html',context={'form':form,'menus':menus,'permissions':permissions})
+
+
+class GroupAddView(View):
+    """
+    添加分组视图
+    url:/myadmin/group
+    """
+    def get(self,request):
+        #1，创建一个空表单
+        form = GroupModelForm()
+        #2,拿到所有的可用一级菜单
+        menus = Menu.objects.only('name','permission_id').select_related('permission').filter(is_delete=False,parent=None)
+        #3,返回渲染的表单
+        return render(request,'myadmin/group/group_detail.html',context={'form':form,'menus':menus})
+    def post(self,request):
+        #,1根据post的数据，创建模型表单对象
+        form = GroupModelForm(request.POST)
+        #2,校验
+        if form.is_valid():
+            #3,如果校验成功，保存，返回OK
+            form.save()
+            return json_response(errmsg='添加分组成功')
+        else:
+            #4,如果失败，返回渲染了错误信息的表单html
+            menus = Menu.objects.only('name','permission_id').select_related('permission').filter(is_delete=False,parent=None)
+            return render(request,'myadmin/group/group_detail.html',context={'form':form,'menus':menus})
 
 
 
