@@ -1,5 +1,5 @@
 from django.http import QueryDict
-from django.shortcuts import render
+from django.shortcuts import render,reverse
 from django.views import View
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -9,7 +9,32 @@ from .models import Menu
 from user.models import User
 from .forms import MenuModelForm,UserModelForm,GroupModelForm
 from utils.res_code import json_response, Code
-
+from django.contrib.auth.mixins import PermissionRequiredMixin
+#重写PermissionRequeireMixin方法
+class MyPermissionRequiredMixin(PermissionRequiredMixin):
+    def has_permission(self):
+        """
+        覆写父类方法,解决一个视图内不同的请求,权限不同的问题
+        :return:
+        """
+        perms = self.get_permission_required()
+        if isinstance(perms,dict):
+            if self.request.method.lower() in perms:
+                return self.request.user.has_perms(perms[self.request.method.lower()])
+        else:
+            return self.request.user.has_perms(perms)
+    def handle_no_permission(self):
+        """
+        覆写父类方法,解决没有权限ajax请求返回json数据的问题
+        :return:
+        """
+        if self.request.is_ajax():
+            #一种是登录了没有权限,一种是没有登录没有权限
+            if self.request.user.is_authenticated:
+                return json_response(errno=Code.ROLEERR,errmsg='您没有权限')
+            else:
+                return json_response(errno=Code.SESSIONERR,errmsg='您未登录,请登录',data={'url':reverse(self.get_login_url())})
+        else: return super().handle_no_permission()
 
 class IndexView(View):
     def get(self, request):
@@ -124,11 +149,12 @@ class WaitView(View):
         return render(request, 'myadmin/wait.html')
 
 
-class MenuListView(View):
+class MenuListView(MyPermissionRequiredMixin,View):
     """
     菜单列表
     url:/admin/menus/
     """
+    permission_required = ('myadmin.dsfewczxcxz',)
     def get(self, request):
         # 拿到所有的一级菜单
         menus = Menu.objects.only('name', 'url', 'icon', 'is_visible', 'order', 'codename', 'is_delete').filter(parent=None)
@@ -162,10 +188,16 @@ class MenuAddView(View):
             return render(request, 'myadmin/menu/add_menu.html', context={'form': form})
 
 
-class MenuUpdateView(View):
+class MenuUpdateView(MyPermissionRequiredMixin, View):
     """
     url:myadmin/menu/<int:menu_id>/
     """
+    permission_required = {
+        'get': ('myadmin.menu_det',),
+        'put': ('myadmin.menu_update',),
+        'delete': ('myadmin.menu_delete',)
+    }
+
     def delete(self,request,menu_id):
         menu = Menu.objects.filter(id = menu_id).only('name')
         if menu:
