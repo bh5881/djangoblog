@@ -1,4 +1,6 @@
 from django.http import QueryDict
+import logging,os
+from django.conf import settings
 from django.shortcuts import render,reverse
 from django.views import View
 from django.contrib.auth.models import Permission
@@ -7,9 +9,13 @@ from django.contrib.auth.models import Permission, Group
 from django.core.paginator import Paginator
 from .models import Menu
 from user.models import User
-from .forms import MenuModelForm,UserModelForm,GroupModelForm
+from .forms import MenuModelForm,UserModelForm,GroupModelForm,NewsModelForm
 from utils.res_code import json_response, Code
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from news.models import News,Tag
+from utils.ck_uploader.funcs import get_filename
+
+logger = logging.getLogger('django')
 #重写PermissionRequeireMixin方法
 class MyPermissionRequiredMixin(PermissionRequiredMixin):
     def has_permission(self):
@@ -394,5 +400,140 @@ class GroupAddView(View):
             menus = Menu.objects.only('name','permission_id').select_related('permission').filter(is_delete=False,parent=None)
             return render(request,'myadmin/group/group_detail.html',context={'form':form,'menus':menus})
 
+class NewsListView(MyPermissionRequiredMixin,View):
+    """
+    新闻列表视图
+    url : /myadmin/newses/
+    """
+    permission_required = ('myadmin.news_list',)
+    def get(self,request):
+        #1获取新闻查询集
+        queryset  = News.objects.only('title','tag__name','author__username','is_delete').select_related('tag','author').all()
+        #获取参数
+        #过滤
+        query_dict  = {}
+        tag_id = request.GET.get('tag')
+        if tag_id:
+            try:
+                tag_id = int(tag_id)
+                query_dict['tag_id'] = tag_id
+                queryset = queryset.filter(tag_id=tag_id)
+            except Exception as e:
+                pass
+        title = request.GET.get('title')
+        if title:
+            query_dict['title'] = title
+            queryset = queryset.filter(title__contains=title)
+        is_delete = request.GET.get('is_delete', None)
+        flag = False
 
 
+        if is_delete == '0':
+            is_delete = True
+            flag = True
+        if is_delete == '1':
+            is_delete = False
+            flag = True
+
+        if flag:
+            queryset = queryset.filter(is_delete=is_delete)
+        query_dict['is_delete'] = is_delete
+        # 4 分页
+        paginator = Paginator(queryset, 3)
+        try:
+            page = int(request.GET.get('page', 1))
+        except Exception as e:
+            page = 1
+        newses = paginator.get_page(page)
+        # 5渲染并返回
+        context = {
+                'newses': newses,
+                'tags': Tag.objects.filter(is_delete=False).only('name')
+            }
+        context.update(query_dict)
+        return render(request, 'myadmin/news/news_list.html', context=context)
+
+
+
+class NewsUpdateView(View):
+    """
+    新闻修改视图
+    url:myamin/news/<int:news_id>/
+    """
+    def get(self,request,news_id):
+        #拿到对象的新闻对象
+        news = News.objects.filter(id = news_id).first()
+        if news:
+            #2生成表单对象
+            form = NewsModelForm(instance = news)
+        else:
+            return json_response(errno=Code.NODATA,errmsg='没有此新闻!')
+        #3 渲染并返回
+        return render(request,'myadmin/news/news_detail.html',context={'form':form})
+
+
+
+    def put(self, request, news_id):
+        # 1. 拿到要修改的对象
+        news = News.objects.filter(id=news_id).first()
+        # 1.1 判断是否存在
+        if not news:
+            return json_response(errno=Code.NODATA, errmsg='没有此新闻！')
+        # 2. 获取put的数据
+        put_data = QueryDict(request.body)
+        # 3. 创建模型表单
+        form = NewsModelForm(put_data, instance=news)
+        # 4. 校验表单
+        if form.is_valid():
+            # 5. 如果成功，则保存数据并返回
+            form.save()
+            return json_response(errmsg='修改表单成功！')
+        else:
+            # 6. 如果失败，返回包含错误信息的html
+            return render(request, 'myadmin/news/news_detail.html', context={'form': form})
+
+class NewsAddView(View):
+    """
+    新增新闻视图
+    url : /myadmin/newss/
+    """
+    def get(self,request):
+        #创建一个表单对象
+        form = NewsModelForm()
+        #返回渲染页面的html页面
+        return render(request,'myadmin/news/news_detail.html',context={'form':form})
+    def post(self,request):
+        #1，接受数据并创建模型表单对象
+        form = NewsModelForm(request.POST)
+        #2,校验
+        if form.is_valid():
+            #3,如果成功，就保存数据
+            instance = form.save(commit = False)
+            instance.save()  #此处才连接数据库，前面加了commit = False后就不连接数据库了
+            return json_response(errmsg='添加新闻成功')
+        else:
+        #4,如果失败，就返回包含错误信息的html
+            return render(request,'myadmin/news/news_detail.html',context={'form':form})
+
+class UploadFileView(View):
+    """
+    上传文件视图
+    url:/myadmin/upload
+    """
+    def post(self,request):
+        try:
+            file = request.FILES['upload']
+            filename = get_filename(file.name)
+
+            file_path = os.path.join(settings.MEDIA_ROOT,filename)
+
+            with open(file_path,'wb') as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
+
+            return json_response(data={'url':settings.MEDIA_URL +filename,
+                                    'name':filename,
+                                    'uploaded':'1'},errmsg = '文件上传成功')
+        except Exception as e:
+            logger.error('上传文件失败:[%s]'%e)
+            return json_response(data={'uploaded':'0'},errmsg='上传文件失败!')

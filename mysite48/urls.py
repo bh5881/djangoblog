@@ -26,6 +26,7 @@ urlpatterns = [
     path('course/',include('course.urls')),
     path('user/',include('user.urls')),
     path('doc/',include('doc.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls'))
     # path
 
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
