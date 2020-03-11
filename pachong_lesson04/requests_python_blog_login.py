@@ -10,12 +10,13 @@ headers = {'Cookie': 'csrftoken=BC7bh50wXYGNB2eTTg0vqdt0lfOCb2wxXuquNvjnE6oNFTHz
 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36',
 'X-CSRFToken': 'BC7bh50wXYGNB2eTTg0vqdt0lfOCb2wxXuquNvjnE6oNFTHzxfnNbO0pSrpFt79y',
 'X-Requested-With': 'XMLHttpRequest'}
+
 response = requests.post(login_url,data=post,headers=headers)
-print(response.text)
-print(response.cookies)
+# print(response.text)
+# print(response.cookies)
 #访问后台页面成功+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-first_url = 'http://182.61.29.114:1234'
-response2 = requests.get(first_url,headers=headers)
+first_url = 'http://182.61.29.114:1234/admin'
+response2 = requests.get(first_url,headers=headers,cookies = response.cookies)
 print(response2.text)
 
 """
