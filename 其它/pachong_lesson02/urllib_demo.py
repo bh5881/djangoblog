@@ -3,7 +3,7 @@ import json
 
 #使用代理的方式：
 import  urllib3
-Porxy = urllib3.ProxyManager('http://120.83.104.41:9999')
+Porxy = urllib3.ProxyManager('http://115.151.141.64:19996')
 res = Porxy.request('get','http://httpbin.org/ip')
 print(res.data)
 

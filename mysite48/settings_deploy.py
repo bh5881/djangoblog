@@ -31,8 +31,9 @@ sys.path.insert(1, os.path.join(BASE_DIR, 'apps'))
 SECRET_KEY = 'yk()r4us2dsavbw=28y-o+q!l*4#5*)ba@1r6--*0hvr==ayed'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
+# ALLOWED_HOSTS = ['2000m14.isok.vip''127.0.0.1']
 ALLOWED_HOSTS = ['*']
 
 
@@ -146,9 +147,9 @@ LOGGING = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tzproject',
-        'USER':'dj_user',
-        'PASSWORD':'pythonvip',
+        'NAME': 'djblog',
+        'USER':'djblog',
+        'PASSWORD':'kcApZiWb2R1',
         'HOST':'127.0.0.1',
         'PORT':3306,
     }
